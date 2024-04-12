@@ -15,5 +15,4 @@ Instructions:
 12. Navigate to the directory where the repository was cloned
 13. Upload Your code to GitHub
 14. Open powerhsell or command prompt
-15. Navigate to the directory containing your Python Code:
-16. 
+15. Navigate to the directory containing your Python Code
