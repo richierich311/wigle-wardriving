@@ -1,0 +1,49 @@
+import requests
+from simplekml import Kml, Style
+
+# Define your Wigle API credentials
+username = 'Rjones96'
+password = 'Cancer2020@'
+
+# Encode the credentials for use in the Authorization header
+encoded_credentials = 'QUlEZDY3ZTcxZDU0MjAyYWEyOWI5YWExZmY0NWY5ZjEwMjE6ZTZlMzViMGZjZjViMDJkYTY4YmM0M2FiNmM3ODg5YmI='
+
+# Define the URL for the Wigle API
+url = 'https://api.wigle.net/api/v2/network/search'
+
+# Define parameters for the API request
+params = {
+    'onlymine': 'true',  # Set to 'true' to search only networks uploaded by your account
+}
+
+# Create a file placeholder for KML
+kmlFile = Kml()
+kmlFolder = kmlFile.newfolder(name = "Folder") # And a folder for all of the points to be stored in (handy for styling each point)
+
+# Styles for each point (Only applies to Google Earth)
+sharedStyle = Style()
+sharedStyle.labelstyle.color = '003153' # Blue
+
+# Make the API request
+response = requests.get(url, params=params, headers={'Authorization': 'Basic ' + encoded_credentials})
+
+# Check if the request was successful
+if response.status_code == 200:
+    # Parse the JSON response
+    data = response.json()
+    
+    # Process the data (e.g., print network names and their locations)
+    for network in data['results']:
+        print(f"SSID: {network['ssid']}, Latitude: {network['trilat']}, Longitude: {network['trilong']}")
+        
+        # Inputs data into a KML file. The order is (Name, Description, Coords[Long,Lat,Alt(optional)])
+        point = kmlFolder.newpoint(name= network['ssid'], coords=[(network['trilong'],network['trilat'])])
+        
+        # Style the point so it appears on maps
+        point.style = sharedStyle
+        
+else:
+    print(f"Error: {response.status_code} - {response.reason}")
+
+# Saves the data to a KML file that can be uploaded to Google Earth, Marble, or other mapping software
+kmlFile.save("networktest.kml")
