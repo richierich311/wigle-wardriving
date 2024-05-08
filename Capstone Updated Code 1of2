@@ -1,0 +1,48 @@
+import requests
+import folium
+
+# Define your Wigle API credentials
+username = 'Rjones96'
+password = 'Cancer2020@'
+
+# Encode the credentials for use in the Authorization header
+encoded_credentials = 'QUlEZDY3ZTcxZDU0MjAyYWEyOWI5YWExZmY0NWY5ZjEwMjE6ZTZlMzViMGZjZjViMDJkYTY4YmM0M2FiNmM3ODg5YmI='
+
+# Define the URL for the Wigle API
+url = 'https://api.wigle.net/api/v2/network/search'
+
+# Define parameters for the API request
+params = {
+    'onlymine': 'true',  # Set to 'true' to search only networks uploaded by your account
+}
+
+# Map location starts at center of AZ
+networkMap = folium.Map([34.30833333,-111.79333333])
+
+
+# Make the API request
+response = requests.get(url, params=params, headers={'Authorization': 'Basic ' + encoded_credentials})
+
+# Check if the request was successful
+if response.status_code == 200:
+    # Parse the JSON response
+    data = response.json()
+
+    # Process the data (e.g., print network names and their locations)
+    for network in data['results']:
+        #TO DO Need to filter through to get rid of duplicates/Non-Wifi data
+
+        print(f"SSID: {network['ssid']}, 
+              Latitude: {network['trilat']}, Longitude: {network['trilong']}")
+
+        # Places a circle marker on the map where networks are located
+        folium.CircleMarker(
+            location=[network['trilat'],network['trilong']],
+            tooltip=network['ssid'],
+            radius=2
+        ).add_to(networkMap)
+        
+else:
+    print(f"Error: {response.status_code} - {response.reason}")
+
+networkMap.save("networkmaptest.html")
